@@ -9,7 +9,7 @@ module SmarterCSV
       :remove_empty_values => true, :remove_zero_values => false , :remove_values_matching => nil , :remove_empty_hashes => true , :strip_whitespace => true,
       :convert_values_to_numeric => true, :strip_chars_from_headers => nil , :user_provided_headers => nil , :headers_in_file => true,
       :comment_regexp => /^#/, :chunk_size => nil , :key_mapping_hash => nil , :downcase_header => true, :strings_as_keys => false, :file_encoding => 'utf-8',
-      :remove_unmapped_keys => false, :keep_original_headers => false,
+      :remove_unmapped_keys => false, :keep_original_headers => false, :keep_unquotes_row => false
     }
     options = default_options.merge(options)
     csv_options = options.select{|k,v| [:col_sep, :row_sep, :quote_char].include?(k)} # options.slice(:col_sep, :row_sep, :quote_char)
@@ -93,9 +93,11 @@ module SmarterCSV
         # cater for the quoted csv data containing the row separator carriage return character
         # in which case the row data will be split across multiple lines (see the sample content in spec/fixtures/carriage_returns_rn.csv)
         # by detecting the existence of an uneven number of quote characters
-        while line.count(options[:quote_char])%2 == 1
-          print "line contains uneven number of quote chars so including content of next line" if options[:verbose]
-          line += f.readline
+        unless options[:keep_unquotes_row]
+          while line.count(options[:quote_char])%2 == 1
+            print "line contains uneven number of quote chars so including content of next line" if options[:verbose]
+            line += f.readline
+          end
         end
 
         line.chomp!    # will use $/ which is set to options[:col_sep]
