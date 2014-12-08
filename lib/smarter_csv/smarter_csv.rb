@@ -37,7 +37,8 @@ module SmarterCSV
         else
           file_headerA =  header.split(options[:col_sep])
         end
-        file_headerA.map!{|x| x.gsub(%r/options[:quote_char]/,'') }
+        #file_headerA.map!{|x| x.gsub(%r/options[:quote_char]/,'') }
+        file_headerA.map!{|x| x.tr(options[:quote_char],'') }
         file_headerA.map!{|x| x.strip}  if options[:strip_whitespace]
         unless options[:keep_original_headers]
           file_headerA.map!{|x| x.gsub(/\s+/,'_')}
